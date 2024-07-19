@@ -1,19 +1,70 @@
 plugins {
     id 'java'
+    id 'eclipse'
+    id 'java-library'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.0.1'
 }
 
-group 'net.ledestudio'
-version '1.0-SNAPSHOT'
+/**
+ * 여기에서 모든 서브 모듈에 공통적으로 적용될 설정을 정의합니다.
+ */
+subprojects {
+    group = group_id
+    version = mod_version
 
-repositories {
-    mavenCentral()
-}
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'org.jetbrains.gradle.plugin.idea-ext'
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-}
+    repositories {
+        mavenCentral()
+    }
 
-test {
-    useJUnitPlatform()
+    dependencies {
+        // https://mvnrepository.com/artifact/org.jetbrains/annotations
+        implementation("org.jetbrains:annotations:${jetbrain_annotation_version}")
+
+        // https://mvnrepository.com/artifact/com.google.code.gson/gson
+        implementation("com.google.code.gson:gson:${gson_version}")
+
+        // https://mvnrepository.com/artifact/com.google.guava/guava
+        implementation("com.google.guava:guava:${guava_version}")
+
+        // https://mvnrepository.com/artifact/org.yaml/snakeyaml
+        implementation("org.yaml:snakeyaml:${snake_yaml_version}")
+
+        // https://mvnrepository.com/artifact/com.coreoz/wisp
+        implementation("com.coreoz:wisp:${wisp_version}")
+
+        // https://mvnrepository.com/artifact/io.netty/netty-all
+        implementation("io.netty:netty-all:${netty_version}")
+
+        testImplementation("org.junit.jupiter:junit-jupiter-api:${junit_version}")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junit_version}")
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    def targetJavaVersion = 21
+    java {
+        def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        if (JavaVersion.current() < javaVersion) {
+            toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+            options.release = targetJavaVersion
+        }
+    }
 }

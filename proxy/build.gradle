@@ -1,0 +1,39 @@
+plugins{
+    id 'xyz.jpenilla.run-velocity' version '2.3.0'
+}
+
+repositories {
+    maven { url = "https://repo.papermc.io/repository/maven-public/" }
+}
+
+dependencies {
+    implementation project(":common")
+
+    // https://papermc.io/software/velocity
+    compileOnly("com.velocitypowered:velocity-api:${velocity_version}")
+    annotationProcessor("com.velocitypowered:velocity-api:${velocity_version}")
+}
+
+tasks {
+    runVelocity {
+        velocityVersion(velocity_version)
+    }
+}
+
+def templateSource = file('src/main/templates')
+def templateDest = layout.buildDirectory.dir('generated/sources/templates')
+def generateTemplates = tasks.register('generateTemplates', Copy) { task ->
+    def props = [
+            'version': project.version
+    ]
+    task.inputs.properties props
+
+    task.from templateSource
+    task.into templateDest
+    task.expand props
+}
+
+sourceSets.main.java.srcDir(generateTemplates.map { it.outputs })
+
+rootProject.idea.project.settings.taskTriggers.afterSync generateTemplates
+project.eclipse.synchronizationTasks(generateTemplates)

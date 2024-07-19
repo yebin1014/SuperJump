@@ -41,6 +41,25 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
 .idea
-.idea/
-.idea/*
+
+# other
+eclipse
+run
+runs
+run-data
+
+repo
