@@ -1,2 +1,5 @@
 rootProject.name = 'mdk-1.21'
+include 'plugin'
+include 'mod'
+include 'common'
 
